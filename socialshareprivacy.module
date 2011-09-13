@@ -55,7 +55,8 @@ function socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
         services : {
             facebook : {
                 'status' : '" . _socialshareprivacy_servicestatus("facebook") . "',
-                'dummy_img' : '$imgpath/socialshareprivacy/images/dummy_facebook.png'
+                'dummy_img' : '$imgpath/socialshareprivacy/images/dummy_facebook.png',
+                'app_id' : '234037923313454',
             },
             twitter : {
                 'status' : '" . _socialshareprivacy_servicestatus("twitter") . "',
