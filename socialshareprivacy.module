@@ -34,10 +34,9 @@ function socialshareprivacy_admin() {
 
 function _socialshareprivacy_servicestatus($service) {
     $settings = variable_get('socialshareprivacy_services', array('facebook', 'gplus', 'twitter'));
-    dsm($settings);
-    dsm($settings[$service] == "facebook");
-    if (array_key_exists($service, $settings) && $settings[$service] == $service)
+    if (array_key_exists($service, $settings) && $settings[$service] !== 0) {
         return "on";
+    }
     return "off";    
 }
 
@@ -49,24 +48,23 @@ function socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
         $block['subject'] = t('Social share privacy');
         $block['content'] = '<div id="socialshareprivacy"></div>';
         $path = drupal_get_path('module', 'socialshareprivacy');
-        
-        dsm(_socialshareprivacy_servicestatus("facebook"));
+        $imgpath = base_path().$path;
         $options = "{
         services : {
             facebook : {
-                'status' : " . _socialshareprivacy_servicestatus("facebook") . ",
-                'dummy_img' : '$path/socialshareprivacy/images/dummy_facebook.png'
+                'status' : '" . _socialshareprivacy_servicestatus("facebook") . "',
+                'dummy_img' : '$imgpath/socialshareprivacy/images/dummy_facebook.png'
             },
             twitter : {
-                'status' : " . _socialshareprivacy_servicestatus("twitter")  . ",
-                'dummy_img' : '$path/socialshareprivacy/images/dummy_twitter.png'
+                'status' : '" . _socialshareprivacy_servicestatus("twitter")  . "',
+                'dummy_img' : '$imgpath/socialshareprivacy/images/dummy_twitter.png'
             },
             gplus : {
-                'status' : " . _socialshareprivacy_servicestatus("gplus")  . ",
-                'dummy_img' : '$path/socialshareprivacy/images/dummy_gplus.png'
+                'status' : '" . _socialshareprivacy_servicestatus("gplus")  . "',
+                'dummy_img' : '$imgpath/socialshareprivacy/images/dummy_gplus.png'
             },
         },
-        'css_path': '$path/socialshareprivacy/socialshareprivacy.css'
+        'css_path': '$imgpath/socialshareprivacy/socialshareprivacy.css'
         }";
         drupal_add_js($path . '/jquery.socialshareprivacy.js', 'file');
         drupal_add_js('jQuery(document).ready(function () { if($("#socialshareprivacy").length > 0){
