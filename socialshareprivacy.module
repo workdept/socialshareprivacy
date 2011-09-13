@@ -41,6 +41,13 @@ function _socialshareprivacy_servicestatus($service) {
     return "off";
 }
 
+function socialshareprivacy_block_info() {
+    return socialshareprivacy_block();
+}
+
+function socialshareprivacy_block_view($delta = 0) {
+    return socialshareprivacy_block($op='view');
+}
 function socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
     $block = array();
     if ($op == 'list') {
@@ -70,8 +77,8 @@ function socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
         'css_path': '$imgpath/socialshareprivacy/socialshareprivacy.css'
         }";
         drupal_add_js($path . '/jquery.socialshareprivacy.js', 'file');
-        drupal_add_js('jQuery(document).ready(function () { if($("#socialshareprivacy").length > 0){
-        $("#socialshareprivacy").socialSharePrivacy(' . $options . '); } });', 'inline');
+        drupal_add_js('jQuery(document).ready(function () { if(jQuery("#socialshareprivacy").length > 0){
+        jQuery("#socialshareprivacy").socialSharePrivacy(' . $options . '); } });', 'inline');
     }
 
     return $block;
