@@ -1,23 +1,24 @@
 <?php
+
 function socialshareprivacy_menu() {
 
-  $items = array();
+    $items = array();
 
-  $items['admin/settings/socialshareprivacy'] = array(
-    'title' => t('Social share privacy'),
-    'description' => t('Configure settings for social share privacy'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('socialshareprivacy_admin'),
-    'access arguments' => array('access administration pages'),
-    'type' => MENU_NORMAL_ITEM,
-   );
+    $items['admin/settings/socialshareprivacy'] = array(
+        'title' => t('Social share privacy'),
+        'description' => t('Configure settings for social share privacy'),
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('socialshareprivacy_admin'),
+        'access arguments' => array('access administration pages'),
+        'type' => MENU_NORMAL_ITEM,
+    );
 
-  return $items;
+    return $items;
 }
 
 function socialshareprivacy_admin() {
     $form = array();
-    
+
     $form['socialshareprivacy_services'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Enabled services'),
@@ -25,10 +26,10 @@ function socialshareprivacy_admin() {
         '#options' => array(
             'facebook' => 'Facebook',
             'twitter' => 'Twitter',
-            'gplus' => 'Google Plus',            
+            'gplus' => 'Google Plus',
         ),
     );
-    
+
     return system_settings_form($form);
 }
 
@@ -37,18 +38,19 @@ function _socialshareprivacy_servicestatus($service) {
     if (array_key_exists($service, $settings) && $settings[$service] !== 0) {
         return "on";
     }
-    return "off";    
+    return "off";
 }
 
 function socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
     $block = array();
     if ($op == 'list') {
         $block[0]['info'] = t('Social share privacy');
-    } else if ($op == 'view') {
+    }
+    elseif ($op == 'view') {
         $block['subject'] = t('Social share privacy');
         $block['content'] = '<div id="socialshareprivacy"></div>';
         $path = drupal_get_path('module', 'socialshareprivacy');
-        $imgpath = base_path().$path;
+        $imgpath = base_path() . $path;
         $options = "{
         services : {
             facebook : {
@@ -56,11 +58,11 @@ function socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
                 'dummy_img' : '$imgpath/socialshareprivacy/images/dummy_facebook.png'
             },
             twitter : {
-                'status' : '" . _socialshareprivacy_servicestatus("twitter")  . "',
+                'status' : '" . _socialshareprivacy_servicestatus("twitter") . "',
                 'dummy_img' : '$imgpath/socialshareprivacy/images/dummy_twitter.png'
             },
             gplus : {
-                'status' : '" . _socialshareprivacy_servicestatus("gplus")  . "',
+                'status' : '" . _socialshareprivacy_servicestatus("gplus") . "',
                 'dummy_img' : '$imgpath/socialshareprivacy/images/dummy_gplus.png'
             },
         },
@@ -68,9 +70,9 @@ function socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
         }";
         drupal_add_js($path . '/jquery.socialshareprivacy.js', 'file');
         drupal_add_js('jQuery(document).ready(function () { if($("#socialshareprivacy").length > 0){
-        $("#socialshareprivacy").socialSharePrivacy('.$options.'); } });', 'inline');
+        $("#socialshareprivacy").socialSharePrivacy(' . $options . '); } });', 'inline');
     }
-    
+
     return $block;
 }
 
