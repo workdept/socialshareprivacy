@@ -1,14 +1,26 @@
 <?php
 
-function socialshareprivacy_menu() {
+/**
+ * @file
+ * A social share (facebook, twitter, google+) privacy (two clicks) plugin for jQuery 1.3
+ */
 
+/**
+ * The default path to the SocialSharePrivacy directory.
+ */
+define('SOCIALSHAREPRIVACY_PATH', 'sites/all/libraries/socialshareprivacy');
+
+/**
+ * Implements hook_menu().
+ */
+function socialshareprivacy_menu() {
     $items = array();
 
-    $items['admin/settings/socialshareprivacy'] = array(
-        'title' => t('Social share privacy'),
-        'description' => t('Configure settings for social share privacy'),
+    $items['admin/config/system/socialshareprivacy'] = array(
+        'title' => 'Social share privacy',
+        'description' => 'Configure settings for social share privacy',
         'page callback' => 'drupal_get_form',
-        'page arguments' => array('socialshareprivacy_admin'),
+        'page arguments' => array('socialshareprivacy_admin_settings'),
         'access arguments' => array('access administration pages'),
         'type' => MENU_NORMAL_ITEM,
     );
@@ -16,13 +28,26 @@ function socialshareprivacy_menu() {
     return $items;
 }
 
-function socialshareprivacy_admin() {
+/**
+ * General configuration form for controlling the behaviour.
+ */
+function socialshareprivacy_admin_settings() {
     $form = array();
+
+    $socialshareprivacy_path = socialshareprivacy_get_path();
+
+    $form['socialshareprivacy_path'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Path'),
+      '#default_value' => $socialshareprivacy_path,
+      '#description' => t('The location where SocialSharePrivacy plugin is installed. Relative paths are from the Drupal root directory.'),
+      '#after_build' => array('_socialshareprivacy_admin_settings_check_plugin_path'),
+    );
 
     $form['socialshareprivacy_services'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Enabled services'),
-        '#default_value' => variable_get('socialshareprivacy_services', array('facebook', 'gplus', 'twitter')),
+        '#default_value' => variable_get('socialshareprivacy_services', array(0, 0, 0)),
         '#options' => array(
             'facebook' => 'Facebook',
             'twitter' => 'Twitter',
@@ -30,53 +55,129 @@ function socialshareprivacy_admin() {
         ),
     );
 
+    $form['socialshareprivacy_services_permaoption'] = array(
+        '#type' => 'checkboxes',
+        '#title' => t('Enabled perma_options'),
+        '#default_value' => variable_get('socialshareprivacy_services_permaoption', array(0, 0, 0)),
+        '#options' => array(
+            'facebook' => 'Facebook',
+            'twitter' => 'Twitter',
+            'gplus' => 'Google Plus',
+        ),
+    );
+
+    $form['socialshareprivacy_js_minified'] = array(
+      '#type' => 'radios',
+      '#title' => t('Use minified javascript file'),
+      '#options' => array(
+        'true' => t('Yes'),
+        'false' => t('No'),
+      ),
+      '#default_value' => variable_get('socialshareprivacy_js_minified', 'true'),
+    );
+
     return system_settings_form($form);
 }
 
-function _socialshareprivacy_servicestatus($service) {
-    $settings = variable_get('socialshareprivacy_services', array('facebook', 'gplus', 'twitter'));
+
+/**
+ * Checks if the directory in $form_element exists and contains a file named
+ * 'jquery.socialshareprivacy.js'. If validation fails, the form element is flagged
+ * with an error from within the file_check_directory function.
+ *
+ * @param $form_element
+ *   The form element containing the name of the directory to check.
+ */
+function _socialshareprivacy_admin_settings_check_plugin_path($form_element) {
+  $library_path = $form_element['#value'];
+  if (!is_dir($library_path) || !(file_exists($library_path . '/jquery.socialshareprivacy.js') && file_exists($library_path . '/jquery.socialshareprivacy.min.js'))) {
+    form_set_error($form_element['#parents'][0], t('You need to download the !socialshareprivacy and extract the entire contents of the archive into the %path folder of your server.', array('!socialshareprivacy' => l(t('SocialSharePrivacy plugin'), 'http://www.heise.de/extras/socialshareprivacy/'), '%path' => $library_path)));
+  }
+
+  return $form_element;
+}
+
+/**
+ * Get the status on/off for a service.
+ */
+function _socialshareprivacy_service_status($service) {
+    $settings = variable_get('socialshareprivacy_services', array(1, 1, 1));
     if (array_key_exists($service, $settings) && $settings[$service] !== 0) {
         return "on";
     }
     return "off";
 }
 
-function socialshareprivacy_block_info() {
-    return socialshareprivacy_block();
+/**
+ * Get the status on/off for a perma option.
+ */
+function _socialshareprivacy_service_permaoption_status($service) {
+    $settings = variable_get('socialshareprivacy_services_permaoption', array(1, 1, 1));
+    if (array_key_exists($service, $settings) && $settings[$service] !== 0) {
+        return "on";
+    }
+    return "off";
 }
 
+/**
+ * Implements hook_block_info().
+ */
+function socialshareprivacy_block_info() {
+  $blocks['socialshareprivacy_block'] = array(
+    // info: The name of the block.
+    'info' => t('Social Share Privacy'),
+    // Block caching options (per role, per user, etc.)
+    'cache' => BLOCK_NO_CACHE,
+  );
+
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
 function socialshareprivacy_block_view($delta = 0) {
     return socialshareprivacy_block($op='view');
 }
+
+/**
+ * Gets the block.
+ */
 function socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
+    $library_path = socialshareprivacy_get_path();
+
     $block = array();
-    if ($op == 'list') {
-        $block[0]['info'] = t('Social share privacy');
-    }
-    elseif ($op == 'view') {
+
+    if ($op == 'view') {
         $block['subject'] = t('Social share privacy');
         $block['content'] = '<div id="socialshareprivacy"></div>';
-        $path = drupal_get_path('module', 'socialshareprivacy');
-        $imgpath = base_path() . $path;
+        $path = $library_path;
         $options = "{
         services : {
             facebook : {
-                'status' : '" . _socialshareprivacy_servicestatus("facebook") . "',
-                'dummy_img' : '$imgpath/socialshareprivacy/images/dummy_facebook.png',
-                'app_id' : '234037923313454',
+                'status' : '" . _socialshareprivacy_service_status("facebook") . "',
+                'dummy_img' : '" . base_path() . $path . "/socialshareprivacy/images/dummy_facebook.png',
+                'perma_option' : '" . _socialshareprivacy_service_permaoption_status("facebook") . "',
             },
             twitter : {
-                'status' : '" . _socialshareprivacy_servicestatus("twitter") . "',
-                'dummy_img' : '$imgpath/socialshareprivacy/images/dummy_twitter.png'
+                'status' : '" . _socialshareprivacy_service_status("twitter") . "',
+                'dummy_img' : '" . base_path() . $path . "/socialshareprivacy/images/dummy_twitter.png',
+                'perma_option' : '" . _socialshareprivacy_service_permaoption_status("twitter") . "',
             },
             gplus : {
-                'status' : '" . _socialshareprivacy_servicestatus("gplus") . "',
-                'dummy_img' : '$imgpath/socialshareprivacy/images/dummy_gplus.png'
+                'status' : '" . _socialshareprivacy_service_status("gplus") . "',
+                'dummy_img' : '" . base_path() . $path . "/socialshareprivacy/images/dummy_gplus.png',
+                'perma_option' : '" . _socialshareprivacy_service_permaoption_status("gplus") . "',
             },
         },
-        'css_path': '$imgpath/socialshareprivacy/socialshareprivacy.css'
+        'css_path': '" . base_path() . $path . "/socialshareprivacy/socialshareprivacy.css'
         }";
-        drupal_add_js($path . '/jquery.socialshareprivacy.js', 'file');
+        $minFileNamePart = '.min';
+        if (variable_get('socialshareprivacy_js_minified', 'true') == 'false') {
+          $minFileNamePart = '';
+        }
+        drupal_add_js($path . '/jquery.socialshareprivacy' . $minFileNamePart . '.js', 'file');
         drupal_add_js('jQuery(document).ready(function () { if(jQuery("#socialshareprivacy").length > 0){
         jQuery("#socialshareprivacy").socialSharePrivacy(' . $options . '); } });', 'inline');
     }
@@ -84,3 +185,39 @@ function socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
     return $block;
 }
 
+/**
+ * Return the path to the SocialSharePrivacy plugin.
+ */
+function socialshareprivacy_get_path() {
+  static $library_path = NULL;
+
+  // Try to locate the library path in any possible setup.
+  if ($library_path == NULL) {
+    // First check the default location.
+    $path = variable_get('socialshareprivacy_path', SOCIALSHAREPRIVACY_PATH);
+    if (is_dir($path . '/socialshareprivacy')) {
+      $library_path = $path;
+    }
+    // Ask the libraries module as a fallback.
+    elseif ($library_path == NULL && module_exists('libraries')) {
+      if ($path = libraries_get_path('socialshareprivacy')) {
+        $library_path = $path;
+        variable_set('socialshareprivacy_path', $library_path);
+      }
+    }
+    // HACK: If libraries api module is not installed but available, load it.
+    elseif ($library_path == NULL && file_exists(dirname(__FILE__) . '/../libraries/libraries.module')) {
+      require_once(dirname(__FILE__) . '/../libraries/libraries.module');
+      if ($path = libraries_get_path('socialshareprivacy')) {
+        $library_path = $path;
+        variable_set('socialshareprivacy_path', $library_path);
+      }
+    }
+    // If no path is found suggest the default one.
+    elseif ($library_path == NULL) {
+      $library_path = SOCIALSHAREPRIVACY_PATH;
+    }
+  }
+
+  return $library_path;
+}

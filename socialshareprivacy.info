@@ -1,5 +1,5 @@
 name = Social share privacy
 description = A two click extension to social network sharing
-configure = admin/settings/socialshareprivacy
+configure = admin/config/system/socialshareprivacy
 core = 7.x
 version = 7.x-1.0
