@@ -39,3 +39,10 @@ CONFIGURATION
 Besides the library location there are other configuration options.
 F.e. the apperance of a media (facebook, twitter, google).
 The Perma Option means the checkboxes to make the deciscion to keep one media always on.
+
+I recommend to go to the settingspage and hit at least save once ..
+
+POSITIONING
+***********
+
+There is automatically a block created, wich can be used for positioning the HTML.
