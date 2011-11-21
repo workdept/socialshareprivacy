@@ -66,6 +66,17 @@ function socialshareprivacy_admin_settings() {
         ),
     );
 
+    $form['socialshareprivacy_ext_link'] = array(
+      '#type' => 'radios',
+      '#title' => t('External link (Info icon)'),
+      '#default_value' => variable_get('socialshareprivacy_ext_link', ''),
+      '#options' => array(
+        '' => ('no special aciton: Link will change the actual window.'),
+        'blank' => ('Change Link to a _blank window.'),
+        'remove' => ('Remove the click event of the link.'),
+      ),
+    );
+
     $form['socialshareprivacy_js_minified'] = array(
       '#type' => 'radios',
       '#title' => t('Use minified javascript file'),
@@ -120,6 +131,20 @@ function _socialshareprivacy_service_permaoption_status($service) {
 }
 
 /**
+ * Get the external link JS.
+ */
+function _socialshareprivacy_external_link() {
+    $setting = variable_get('socialshareprivacy_ext_link', '');
+    if ($setting == 'remove') {
+        return " setTimeout('(function ($) { $(\'div.settings_info_menu > a\').click(function(){ return false; }); })(jQuery);', 300);";
+    }
+    elseif ($setting == 'blank') {
+        return " setTimeout('(function ($) { $(\'div.settings_info_menu > a\').attr(\'target\', \'_blank\'); })(jQuery);', 300);";
+    }
+    return "";
+}
+
+/**
  * Implements hook_block_info().
  */
 function socialshareprivacy_block_info() {
@@ -127,7 +152,7 @@ function socialshareprivacy_block_info() {
     // info: The name of the block.
     'info' => t('Social Share Privacy'),
     // Block caching options (per role, per user, etc.)
-    'cache' => BLOCK_NO_CACHE,
+    'cache' => 'BLOCK_NO_CACHE',
   );
 
 
@@ -177,9 +202,8 @@ function socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
         if (variable_get('socialshareprivacy_js_minified', 'true') == 'false') {
           $minFileNamePart = '';
         }
-        drupal_add_js($path . '/jquery.socialshareprivacy' . $minFileNamePart . '.js', 'file');
-        drupal_add_js('jQuery(document).ready(function () { if(jQuery("#socialshareprivacy").length > 0){
-        jQuery("#socialshareprivacy").socialSharePrivacy(' . $options . '); } });', 'inline');
+        drupal_add_js($path . '/jquery.socialshareprivacy' . $minFileNamePart . '.js', array('group' => JS_LIBRARY));
+        drupal_add_js('(function ($) { jQuery(document).ready(function () { if(jQuery("#socialshareprivacy").length > 0){ jQuery("#socialshareprivacy").socialSharePrivacy(' . $options . ');' . _socialshareprivacy_external_link() . ' } }); })(jQuery);', 'inline');
     }
 
     return $block;
