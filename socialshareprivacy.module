@@ -73,7 +73,7 @@ function socialshareprivacy_admin_settings() {
       '#options' => array(
         '' => ('no special aciton: Link will change the actual window.'),
         'blank' => ('Change Link to a _blank window.'),
-        'remove' => ('Remove the click event of the link.'),
+        'remove' => ('Remove the click event of the link and set href to #.'),
       ),
     );
 
