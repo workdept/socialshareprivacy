@@ -136,10 +136,10 @@ function _socialshareprivacy_service_permaoption_status($service) {
 function _socialshareprivacy_external_link() {
     $setting = variable_get('socialshareprivacy_ext_link', '');
     if ($setting == 'remove') {
-        return " setTimeout('(function ($) { $(\'div.settings_info_menu > a\').click(function(){ return false; }); })(jQuery);', 300);";
+        return " $('div.settings_info_menu > a').attr('href', '#'); $('div.settings_info_menu > a').click(function(){ return false; });";
     }
     elseif ($setting == 'blank') {
-        return " setTimeout('(function ($) { $(\'div.settings_info_menu > a\').attr(\'target\', \'_blank\'); })(jQuery);', 300);";
+        return " $('div.settings_info_menu > a').attr('target', '_blank');";
     }
     return "";
 }
@@ -202,7 +202,7 @@ function socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
         if (variable_get('socialshareprivacy_js_minified', 'true') == 'false') {
           $minFileNamePart = '';
         }
-        drupal_add_js($path . '/jquery.socialshareprivacy' . $minFileNamePart . '.js', array('group' => JS_LIBRARY));
+        drupal_add_js($path . '/jquery.socialshareprivacy' . $minFileNamePart . '.js');
         drupal_add_js('(function ($) { jQuery(document).ready(function () { if(jQuery("#socialshareprivacy").length > 0){ jQuery("#socialshareprivacy").socialSharePrivacy(' . $options . ');' . _socialshareprivacy_external_link() . ' } }); })(jQuery);', 'inline');
     }
 
