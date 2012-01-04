@@ -1,0 +1,115 @@
+<?php
+
+/**
+ * @file
+ * Install/uninstall file for socialSharePrivacy module
+ */
+
+/**
+ * Implements hook_install().
+ */
+function socialshareprivacy_install() {
+  _socialshareprivacy_refresh_contenttypes();
+}
+
+/**
+ * Implements hook_enable().
+ *
+ * Enable all (new) contenttypes.
+ */
+function socialshareprivacy_enable() {
+  _socialshareprivacy_refresh_contenttypes();
+  drupal_set_message(t('Social share privacy: Added a field to every contenttype.'));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function socialshareprivacy_uninstall() {
+
+  if (field_read_field(_socialshareprivacy_field_name())) {
+    field_delete_field(_socialshareprivacy_field_name()); // is needed because of core bug
+    field_delete_instance(_socialshareprivacy_field_name());
+    field_purge_batch(2000);
+  }
+
+  variable_del('socialshareprivacy_services');
+  variable_del('socialshareprivacy_services_permaoption');
+  variable_del('socialshareprivacy_ext_link');
+  variable_del('socialshareprivacy_js_minified');
+  variable_del('socialshareprivacy_facebook_action');
+  variable_del('socialshareprivacy_cookie_expires');
+  variable_del('socialshareprivacy_referrertrack');
+  variable_del('socialshareprivacy_force_german');
+}
+
+/**
+ * Allow for content types.
+ */
+function socialshareprivacy_update_7000() {
+  _socialshareprivacy_refresh_contenttypes();
+  return t('Social share privacy: Added a field to every contenttype.');
+}
+
+function _socialshareprivacy_refresh_contenttypes() {
+
+  $t = get_t();
+
+  // Clear the field cache to be sure the new field type is available.
+  field_cache_clear();
+
+  if (!module_exists('field_ui')) {
+    drupal_set_message($t('Enable the Field UI module to adjust the Social Share Privacy field settings, manage node fields or manage the display.'), 'warning');
+  }
+
+  foreach (node_type_get_names() as $name => $value) {
+    __add_cusotm_field('node', $name);
+  }
+}
+
+function __add_cusotm_field($entity, $bundle) {
+
+  $t = get_t();
+  $ssp_field_name = _socialshareprivacy_field_name();
+
+  if (!field_read_field($ssp_field_name)) {
+    $field = array();
+    $field = array(
+      'field_name' => $ssp_field_name,
+      'cardinality' => 1,
+      'type' => 'list_boolean',
+      'default_value' => array(array('value' => 1)),
+      'translatable' => FALSE,
+      'locked' => FALSE,
+      'no_ui' => TRUE,
+    );
+
+    $instance = array();
+    $instance = array(
+      'field_name' => $ssp_field_name,
+      'entity_type' => $entity,
+      'label' => $t('Placeholder for Social Share Privacy'),
+      'description' => $t('If marked the Social Share Privacy will be shown on this node. If configured in the displays too !'),
+      'bundle' => $bundle,
+      'field types' => 'list_boolean',
+      'widget' => array(
+            'type' => 'options_onoff',
+            'settings' => array('display_label' => 1)
+        ),
+      'default_value' => array(array('value' => 1)),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => _socialshareprivacy_formatter(),
+        ),
+        'teaser' => array(
+          'label' => 'hidden',
+          'type' => _socialshareprivacy_formatter(),
+        ),
+      ),
+    );
+
+    field_create_field($field);
+    field_create_instance($instance);
+  }
+}

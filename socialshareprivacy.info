@@ -1,5 +1,13 @@
 name = Social share privacy
 description = A two click extension to social network sharing
-configure = admin/config/system/socialshareprivacy
 core = 7.x
+package = "Other"
 version = 7.x-1.0
+
+dependencies[] = options
+
+configure = admin/config/user-interface/socialshareprivacy
+
+files[] = socialshareprivacy.admin.inc
+files[] = socialshareprivacy.install
+files[] = socialshareprivacy.module
