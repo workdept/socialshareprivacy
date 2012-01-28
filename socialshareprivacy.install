@@ -23,6 +23,15 @@ function socialshareprivacy_enable() {
 }
 
 /**
+ * Implements hook_disable().
+ *
+ * put an message only.
+ */
+function socialshareprivacy_disable() {
+  drupal_set_message(t('Social share privacy: disabled. All fields will remain until unistalled. Enabling will add again the placeholderfield to every contenttype not already having it.'));
+}
+
+/**
  * Implements hook_uninstall().
  */
 function socialshareprivacy_uninstall() {
@@ -41,14 +50,18 @@ function socialshareprivacy_uninstall() {
   variable_del('socialshareprivacy_cookie_expires');
   variable_del('socialshareprivacy_referrertrack');
   variable_del('socialshareprivacy_force_german');
+
+  drupal_set_message(t('Social share privacy: delted all fields and variables'));
 }
 
 /**
- * Allow for content types.
+ * Implements hook_update().
+ *
+ * Adds placeholder fields to every content type.
  */
 function socialshareprivacy_update_7000() {
   _socialshareprivacy_refresh_contenttypes();
-  return t('Social share privacy: Added a field to every contenttype.');
+  return t('Social share privacy: Added a field to every contenttype. The nodes itself are not updated.');
 }
 
 function _socialshareprivacy_refresh_contenttypes() {
@@ -70,42 +83,79 @@ function _socialshareprivacy_refresh_contenttypes() {
 function __add_cusotm_field($entity, $bundle) {
 
   $t = get_t();
-  $ssp_field_name = _socialshareprivacy_field_name();
+  $ssp_field_name = 'field_socialshareprivacy';
+  if (function_exists('_socialshareprivacy_field_name')) {
+    $ssp_field_name = _socialshareprivacy_field_name();
+  }
 
   if (!field_read_field($ssp_field_name)) {
     $field = array();
     $field = array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
       'field_name' => $ssp_field_name,
-      'cardinality' => 1,
-      'type' => 'list_boolean',
-      'default_value' => array(array('value' => 1)),
-      'translatable' => FALSE,
-      'locked' => FALSE,
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'module' => 'list',
       'no_ui' => TRUE,
+      'settings' => array(
+        'allowed_values' => array(
+          0 => '',
+          1 => '',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'translatable' => '0',
+      'type' => 'list_boolean',
     );
 
     $instance = array();
     $instance = array(
-      'field_name' => $ssp_field_name,
-      'entity_type' => $entity,
-      'label' => $t('Placeholder for Social Share Privacy'),
-      'description' => $t('If marked the Social Share Privacy will be shown on this node. If configured in the displays too !'),
       'bundle' => $bundle,
-      'field types' => 'list_boolean',
-      'widget' => array(
-            'type' => 'options_onoff',
-            'settings' => array('display_label' => 1)
+      'default_value' => array(
+        0 => array(
+          'value' => 1,
         ),
-      'default_value' => array(array('value' => 1)),
+      ),
+      'deleted' => '0',
+      'description' => $t('If marked the Social Share Privacy will be shown on this node. If configured in the displays too !'),
       'display' => array(
         'default' => array(
           'label' => 'hidden',
+          'module' => 'socialshareprivacy',
+          'settings' => array(),
           'type' => _socialshareprivacy_formatter(),
+          'weight' => 1,
         ),
         'teaser' => array(
           'label' => 'hidden',
+          'module' => 'socialshareprivacy',
+          'settings' => array(),
           'type' => _socialshareprivacy_formatter(),
+          'weight' => 1,
         ),
+      ),
+      'entity_type' => $entity,
+      'field_name' => $ssp_field_name,
+      'label' => $t('Placeholder for Social Share Privacy'),
+      'required' => 0,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(
+          'display_label' => 1,
+        ),
+        'type' => 'options_onoff',
+        'weight' => -20,
       ),
     );
 

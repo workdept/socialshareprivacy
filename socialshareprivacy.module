@@ -101,6 +101,48 @@ function socialshareprivacy_field_formatter_view($object_type, $object, $field, 
 }
 
 /**
+ * Implements hook_field_extra_fields().
+ */
+function socialshareprivacy_field_extra_fields() {
+  $extra = array();
+  foreach (node_type_get_names() as $name => $value) {
+    $extra['node'][$name]['display']['socialshareprivacy'] = array(
+      'label' => t('Social Share Privacy'),
+      'description' => t('Social Share Privacy'),
+      'weight' => 0,
+    );
+  }
+  return $extra;
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function socialshareprivacy_preprocess_node(&$vars) {
+
+  if (_socialshareprivacy_has_access()) {
+    return NULL;
+  }
+
+  $node = $vars['node'];
+  $elements = $vars['elements'];
+  $htmlNodeId = 'socialshareprivacy-node-' . $node->nid;
+  $extra_fields = field_extra_fields_get_display('node', $node->type, $vars['view_mode']);
+  foreach ($extra_fields as $name => $settings) {
+    if ($name == 'socialshareprivacy' && $settings['visible']) {
+      $javascript = _socialshareprivacy_write_javascript($htmlNodeId);
+      $markup = _socialshareprivacy_get_markup($htmlNodeId);
+      if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && drupal_strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        $markup =  $markup . '<script type="text/javascript">' . $javascript . '</script>';
+      }
+      $vars['content']['socialshareprivacy'] = array(
+        '#markup' => $markup,
+      );
+    }
+  }
+}
+
+/**
  * Implements hook_block_info().
  */
 function socialshareprivacy_block_info() {
