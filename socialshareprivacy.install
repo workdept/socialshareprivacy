@@ -39,6 +39,7 @@ function socialshareprivacy_uninstall() {
   variable_del('socialshareprivacy_services');
   variable_del('socialshareprivacy_services_permaoption');
   variable_del('socialshareprivacy_ext_link');
+  variable_del('socialshareprivacy_ext_link_target');
   variable_del('socialshareprivacy_js_minified');
   variable_del('socialshareprivacy_facebook_action');
   variable_del('socialshareprivacy_cookie_expires');
@@ -161,7 +162,6 @@ function __add_custom_field($entity, $bundle) {
       ),
     );
 
-    
     field_create_instance($instance);
   }
 }

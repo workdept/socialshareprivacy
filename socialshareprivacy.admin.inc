@@ -65,6 +65,13 @@ function socialshareprivacy_admin_settings() {
       ),
     );
 
+    $form['socialshareprivacy_ext_link_target'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Change default info link'),
+      '#description' => t('Specify here a url if you dont want to link to heise.'),
+      '#default_value' => variable_get('socialshareprivacy_ext_link_target', ''),
+    );
+
     $form['socialshareprivacy_js_minified'] = array(
       '#type' => 'radios',
       '#title' => t('Use minified javascript file'),
@@ -144,9 +151,9 @@ function socialshareprivacy_form_admin_fieldmgmt($form, &$form_state) {
 
     $form['submit'] = array(
       '#type' => 'submit',
-      '#value' => t('Submit'),
+      '#value' => t('Save'),
     );
-   
+
     return $form;
 }
 

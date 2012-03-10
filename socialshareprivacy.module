@@ -258,7 +258,8 @@ function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $u
               }
           },
           'css_path': '" . base_path() . $path . "/socialshareprivacy/socialshareprivacy.css',
-          'cookie_expires' : '" . variable_get('socialshareprivacy_cookie_expires', '365') . "'";
+          'cookie_expires' : '" . variable_get('socialshareprivacy_cookie_expires', '365') . "',
+          'info_link': '" . url(variable_get('socialshareprivacy_ext_link_target', 'http://www.heise.de/ct/artikel/2-Klicks-fuer-mehr-Datenschutz-1333879.html')) . "'";
   }
   else {
     $options = "{
@@ -292,7 +293,8 @@ function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $u
           'css_path': '" . base_path() . $path . "/socialshareprivacy/socialshareprivacy.css',
           'cookie_expires' : '" . (is_numeric(variable_get('socialshareprivacy_cookie_expires', '365')) ? variable_get('socialshareprivacy_cookie_expires', '365') : '365') . "',
           'txt_help'       : '" . _socialshareprivacy_translate_for_javascript("If you enable these options, Facebook, Twitter or Google will receive and strore information about your visitors. Read more by clicking on <em>i</em>") . "',
-          'settings_perma' : '" . _socialshareprivacy_translate_for_javascript("Agree for permanent activation and data transfer:") . "'";
+          'settings_perma' : '" . _socialshareprivacy_translate_for_javascript("Agree for permanent activation and data transfer:") . "',
+          'info_link': '" . url(variable_get('socialshareprivacy_ext_link_target', 'http://www.heise.de/ct/artikel/2-Klicks-fuer-mehr-Datenschutz-1333879.html')) . "'";
   }
 
   if ($url != '') {
