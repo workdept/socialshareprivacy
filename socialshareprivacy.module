@@ -229,8 +229,8 @@ function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $u
     $path = _socialshareprivacy_get_path();
   }
   $facebook_dummy = base_path() . $path . '/socialshareprivacy/images/dummy_facebook.png';
-  if ($language->language != 'de' && variable_get('socialshareprivacy_force_german', 'false') == 'true') {
-    $facebook_dummy = base_path() . drupal_get_path('module', 'socialshareprivacy') . '/images/dummy_facebook.png';
+  if ($language->language != 'de' && variable_get('socialshareprivacy_force_german', 'false') == 'false') {
+    $facebook_dummy = base_path() . $path . '/socialshareprivacy/images/dummy_facebook_en.png';
   }
 
   /* use the german 'default' texts */
