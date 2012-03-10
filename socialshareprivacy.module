@@ -242,23 +242,23 @@ function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $u
                   'dummy_img' : '" . $facebook_dummy . "',
                   'perma_option' : '" . _socialshareprivacy_service_permaoption_status("facebook") . "',
                   'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "',
-                  'action'         : '" . check_plain(variable_get('socialshareprivacy_facebook_action', 'recommend')) . "',
+                  'action'         : '" . check_plain(variable_get('socialshareprivacy_facebook_action', 'recommend')) . "'
               },
               twitter : {
                   'status' : '" . _socialshareprivacy_service_status("twitter") . "',
                   'dummy_img' : '" . base_path() . $path . "/socialshareprivacy/images/dummy_twitter.png',
                   'perma_option' : '" . _socialshareprivacy_service_permaoption_status("twitter") . "',
-                  'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "',
+                  'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "'
               },
               gplus : {
                   'status' : '" . _socialshareprivacy_service_status("gplus") . "',
                   'dummy_img' : '" . base_path() . $path . "/socialshareprivacy/images/dummy_gplus.png',
                   'perma_option' : '" . _socialshareprivacy_service_permaoption_status("gplus") . "',
-                  'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "',
-              },
+                  'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "'
+              }
           },
           'css_path': '" . base_path() . $path . "/socialshareprivacy/socialshareprivacy.css',
-          'cookie_expires' : '" . variable_get('socialshareprivacy_cookie_expires', '365') . "',";
+          'cookie_expires' : '" . variable_get('socialshareprivacy_cookie_expires', '365') . "'";
   }
   else {
     $options = "{
@@ -270,7 +270,7 @@ function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $u
                   'language'       : '" . _socialshareprivacy_map_facebook_language($language->language) . "',
                   'txt_info'       : '" . _socialshareprivacy_translate_for_javascript("2 clicks for more privacy: Click on this button to activate the Facebook share button. Activating the share button will already transfer data to Facebook. See more on <em>i</em>") . "',
                   'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "',
-                  'action'         : '" . variable_get('socialshareprivacy_facebook_action', 'recommend') . "',
+                  'action'         : '" . variable_get('socialshareprivacy_facebook_action', 'recommend') . "'
               },
               twitter : {
                   'status' : '" . _socialshareprivacy_service_status("twitter") . "',
@@ -278,7 +278,7 @@ function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $u
                   'perma_option' : '" . _socialshareprivacy_service_permaoption_status("twitter") . "',
                   'language'       : '" . $language->language . "',
                   'txt_info'       : '" . _socialshareprivacy_translate_for_javascript("2 clicks for more privacy: Click on this button to activate the Twitter share button. Activating the share button will already transfer data to Facebook. See more on <em>i</em>") . "',
-                  'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "',
+                  'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "'
               },
               gplus : {
                   'status' : '" . _socialshareprivacy_service_status("gplus") . "',
@@ -286,18 +286,18 @@ function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $u
                   'perma_option' : '" . _socialshareprivacy_service_permaoption_status("gplus") . "',
                   'language'       : '" . $language->language . "',
                   'txt_info'       : '" . _socialshareprivacy_translate_for_javascript("2 clicks for more privacy: Click on this button to activate the Google+ share button. Activating the share button will already transfer data to Facebook. See more on <em>i</em>") . "',
-                  'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "',
-              },
+                  'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "'
+              }
           },
           'css_path': '" . base_path() . $path . "/socialshareprivacy/socialshareprivacy.css',
           'cookie_expires' : '" . (is_numeric(variable_get('socialshareprivacy_cookie_expires', '365')) ? variable_get('socialshareprivacy_cookie_expires', '365') : '365') . "',
           'txt_help'       : '" . _socialshareprivacy_translate_for_javascript("If you enable these options, Facebook, Twitter or Google will receive and strore information about your visitors. Read more by clicking on <em>i</em>") . "',
-          'settings_perma' : '" . _socialshareprivacy_translate_for_javascript("Agree for permanent activation and data transfer:") . "',";
+          'settings_perma' : '" . _socialshareprivacy_translate_for_javascript("Agree for permanent activation and data transfer:") . "'";
   }
 
   if ($url != '') {
-    $options = $options . "
-    'uri' : '" . $url . "',";
+    $options = $options . ",
+    'uri' : '" . $url . "'";
   }
 
   $options = $options . "
