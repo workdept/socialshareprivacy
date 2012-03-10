@@ -4,6 +4,8 @@
  * Administration settings form area for Social Share Privacy module
  */
 
+require_once(DRUPAL_ROOT . '/sites/all/modules/socialshareprivacy/socialshareprivacy.install');
+
  /**
  * General configuration form for controlling the behaviour.
  */
@@ -23,7 +25,7 @@ function socialshareprivacy_admin_settings() {
     $form['socialshareprivacy_services'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Enabled services'),
-        '#default_value' => variable_get('socialshareprivacy_services', array(0, 0, 0)),
+        '#default_value' => variable_get('socialshareprivacy_services', array(1, 1, 1)),
         '#options' => array(
             'facebook' => 'Facebook',
             'twitter' => 'Twitter',
@@ -34,7 +36,7 @@ function socialshareprivacy_admin_settings() {
     $form['socialshareprivacy_services_permaoption'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Enabled perma_options'),
-        '#default_value' => variable_get('socialshareprivacy_services_permaoption', array(0, 0, 0)),
+        '#default_value' => variable_get('socialshareprivacy_services_permaoption', array(1, 1, 1)),
         '#options' => array(
             'facebook' => 'Facebook',
             'twitter' => 'Twitter',
@@ -98,4 +100,66 @@ function socialshareprivacy_admin_settings() {
     );
 
     return system_settings_form($form);
+}
+
+function socialshareprivacy_admin_fieldmgmt() {
+    $ret[] = array('#markup' => t('Enable/Disable the Socialshareprivacy field for your contenttypes:'));
+    $ret[] = drupal_get_form('socialshareprivacy_form_admin_fieldmgmt');
+    return $ret;
+}
+
+function socialshareprivacy_form_admin_fieldmgmt($form, &$form_state) {
+    $form = array();
+
+    $head = array(
+      'contenttype' => array('data' => t('Contenttype'), 'field' => 'contenttype'),
+    );
+
+    $options = array();
+    $default_values = array();
+    foreach (node_type_get_names() as $name => $value) {
+      $options['ssp_fieldmgmt_' . $name] = array(
+        'contenttype' => array(
+          'data' => array(
+            '#type' => 'link',
+            '#title' => $value,
+            '#href' => 'admin/structure/types/manage/' . $name . '/fields',
+          ),
+        ),
+      );
+      $is_enabled = 0;
+      if (field_info_instance('node', variable_get('socialshareprivacy_field_name'), $name)) {
+        $is_enabled = 1;
+      }
+      $default_values['ssp_fieldmgmt_' . $name] = $is_enabled;
+    }
+
+    $form['ssp_fieldmgmt'] = array(
+      '#type' => 'tableselect',
+      '#header' => $head,
+      '#options' => $options,
+      '#default_value' => $default_values,
+      '#empty' => t('No content available.'),
+    );
+
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Submit'),
+    );
+   
+    return $form;
+}
+
+function socialshareprivacy_form_admin_fieldmgmt_submit($form, &$form_state) {
+  $form_values =  $form_state['values'];
+  $ssp_fieldmgmt = $form_values['ssp_fieldmgmt'];
+  $entity = 'node';
+  foreach ($ssp_fieldmgmt as $k => $v) {
+    if ($v===0) { // this means checked ..
+      __remove_custom_field($entity, drupal_substr($k, 14));
+    }
+    else {
+      __add_custom_field($entity, drupal_substr($k, 14));
+    }
+  }
 }

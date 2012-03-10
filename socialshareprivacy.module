@@ -9,7 +9,7 @@
  * The default path to the SocialSharePrivacy directory.
  */
 define('SOCIALSHAREPRIVACY_PATH', 'sites/all/libraries/socialshareprivacy');
-
+define('SOCIALSHAREPRIVACY_FORMATTER', variable_get('socialshareprivacy_formatter'));
 
 /**
  * Implements hook_help().
@@ -49,7 +49,26 @@ function socialshareprivacy_menu() {
         'page callback' => 'drupal_get_form',
         'page arguments' => array('socialshareprivacy_admin_settings'),
         'access arguments' => array('administer socialshareprivacy'),
-        'type' => MENU_NORMAL_ITEM,
+        'weight' => -20,
+        'file' => 'socialshareprivacy.admin.inc',
+    );
+    $items['admin/config/user-interface/socialshareprivacy/settings'] = array(
+        'title' => 'Settings',
+        'description' => 'Configure settings for social share privacy',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('socialshareprivacy_admin_settings'),
+        'access arguments' => array('administer socialshareprivacy'),
+        'weight' => -20,
+        'type' => MENU_DEFAULT_LOCAL_TASK,
+        'file' => 'socialshareprivacy.admin.inc',
+    );
+    $items['admin/config/user-interface/socialshareprivacy/fieldmgmt'] = array(
+        'title' => 'Field Management',
+        'description' => 'Add social share privacy fields to your contenttypes',
+        'page callback' => 'socialshareprivacy_admin_fieldmgmt',
+        'access arguments' => array('administer socialshareprivacy'),
+        'weight' => -19,
+        'type' => MENU_LOCAL_TASK,
         'file' => 'socialshareprivacy.admin.inc',
     );
 
@@ -61,7 +80,7 @@ function socialshareprivacy_menu() {
  */
 function socialshareprivacy_field_formatter_info() {
   return array(
-    _socialshareprivacy_formatter() => array(
+    SOCIALSHAREPRIVACY_FORMATTER => array(
       'label' => t('Show Social Share Privacy on this Node'),
       'field types' => array('boolean'),
     ),
@@ -79,7 +98,7 @@ function socialshareprivacy_field_formatter_view($object_type, $object, $field, 
 
   $element = array();
   switch ($display['type']) {
-    case _socialshareprivacy_formatter():
+    case SOCIALSHAREPRIVACY_FORMATTER:
       foreach ($items as $delta => $item) {
         if ($item['value'] == "1") {
           $element[$delta]['#type'] = 'markup';
@@ -215,7 +234,7 @@ function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $u
   }
 
   /* use the german 'default' texts */
-  if (variable_get('socialshareprivacy_force_german', 'false') == 'true') {
+  if (variable_get('socialshareprivacy_force_german', 'true') == 'true') {
     $options = "{
           services : {
               facebook : {
@@ -472,12 +491,4 @@ function _socialshareprivacy_map_facebook_language($language) {
 
 function _socialshareprivacy_has_access() {
   return user_access('access socialshareprivacy');
-}
-
-function _socialshareprivacy_field_name() {
-  return 'field_socialshareprivacy';
-}
-
-function _socialshareprivacy_formatter() {
-  return 'socialshareprivacy_node_formatter';
 }
