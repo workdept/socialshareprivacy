@@ -61,6 +61,7 @@ function socialshareprivacy_uninstall() {
   variable_del('socialshareprivacy_formatter');
   variable_del('socialshareprivacy_widget');
   variable_del('socialshareprivacy_field_type');
+  variable_del('socialshareprivacy_neutral_button');
 
   drupal_set_message(t('Social share privacy: deleted field and variables'));
 }

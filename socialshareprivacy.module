@@ -234,9 +234,9 @@ function _socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
 
   if ($op == 'view') {
     $block['subject'] = t('Social share privacy');
-    $block['content'] = _socialshareprivacy_get_markup();
+    $block['content'] = _socialshareprivacy_get_markup('socialshareprivacy-block');
 
-    _socialshareprivacy_write_javascript();
+    _socialshareprivacy_write_javascript('socialshareprivacy-block');
   }
 
   return $block;
@@ -283,7 +283,7 @@ function _socialshareprivacy_get_path() {
  * writes the javascript to the page
  */
 function _socialshareprivacy_get_markup($nodeId = 'socialshareprivacy') {
-  return '<div id="' . $nodeId . '">&nbsp;</div>';
+  return '<div id="' . $nodeId . '" class="ssp_wrapper">&nbsp;</div>';
 }
 
 /**
@@ -328,7 +328,10 @@ function _socialshareprivacy_get_javascript_options($url = '', $library_path = '
     $path = _socialshareprivacy_get_path();
   }
   $facebook_dummy = base_path() . $path . '/socialshareprivacy/images/dummy_facebook_en.png';
-  if ($language->language == 'de' || variable_get('socialshareprivacy_force_german', 'false') == 'true') {
+  if (variable_get('socialshareprivacy_neutral_button', 'false') == 'true') {
+    $facebook_dummy = base_path() . drupal_get_path('module', 'socialshareprivacy') . '/images/dummy_facebook.png';
+  }
+  elseif ($language->language == 'de' || variable_get('socialshareprivacy_force_german', 'false') == 'true') {
     $facebook_dummy = base_path() . $path . '/socialshareprivacy/images/dummy_facebook.png';
   }
   elseif ($language->language != 'en') {

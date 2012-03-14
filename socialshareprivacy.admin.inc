@@ -92,6 +92,16 @@ function socialshareprivacy_admin_settings() {
       '#default_value' => variable_get('socialshareprivacy_force_german', 'false'),
     );
 
+    $form['socialshareprivacy_neutral_button'] = array(
+      '#type' => 'radios',
+      '#title' => t('Use language neutral FB button'),
+      '#options' => array(
+        'true' => t('Yes'),
+        'false' => t('No'),
+      ),
+      '#default_value' => variable_get('socialshareprivacy_neutral_button', 'false'),
+    );
+    
     $form['socialshareprivacy_cookie_expires'] = array(
       '#type' => 'textfield',
       '#title' => t('Cookie expires'),
