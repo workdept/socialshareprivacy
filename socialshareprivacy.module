@@ -9,7 +9,10 @@
  * The default path to the SocialSharePrivacy directory.
  */
 define('SOCIALSHAREPRIVACY_PATH', 'sites/all/libraries/socialshareprivacy');
+define('SOCIALSHAREPRIVACY_FIELD_TYPE', variable_get('socialshareprivacy_field_type'));
 define('SOCIALSHAREPRIVACY_FORMATTER', variable_get('socialshareprivacy_formatter'));
+define('SOCIALSHAREPRIVACY_WIDGET', variable_get('socialshareprivacy_widget'));
+define('SOCIALSHAREPRIVACY_DEFAULT_VALUE_SERVICES', serialize(array('facebook' => 'facebook', 'twitter' => 'twitter', 'gplus' => 'gplus')));
 
 /**
  * Implements hook_help().
@@ -18,7 +21,7 @@ function socialshareprivacy_help($path, $arg) {
   switch ($path) {
     case 'admin/config/user-interface/socialshareprivacy':
     case 'admin/help#socialshareprivacy':
-      return '<p>' . t('Adds social network buttons to content types with the 2-click-method “<a href="http://www.heise.de/extras/socialshareprivacy/" target="_blank">socialSharePrivacy</a>” by Heise Zeitschriften Verlag. So the networks won\'t receive data unless the visitor wants to.') . '</p>';
+      return '<p>' . t('Adds social network buttons to content types and provides a block with the 2-click-method “<a href="http://www.heise.de/extras/socialshareprivacy/" target="_blank">socialSharePrivacy</a>” by Heise Zeitschriften Verlag. So the networks won\'t receive data unless the visitor wants to.') . '</p>';
   }
 }
 
@@ -76,15 +79,78 @@ function socialshareprivacy_menu() {
 }
 
 /**
+ * Implement hook_field_info().
+ */
+function socialshareprivacy_field_info() {
+  return array(
+    SOCIALSHAREPRIVACY_FIELD_TYPE => array(
+      'label' => t('Placeholder for Social Share Privacy'),
+      'description' => t('If marked the Social Share Privacy will be placed in this node.'),
+      'default_widget' => SOCIALSHAREPRIVACY_WIDGET,
+      'default_formatter' => SOCIALSHAREPRIVACY_FORMATTER,
+    ),
+  );
+}
+
+/**
+ * Implement hook_field_widget_info().
+ */
+function socialshareprivacy_field_widget_info() {
+  return array(
+    SOCIALSHAREPRIVACY_WIDGET => array(
+      'label' => t('SSP Widget'),
+      'field types' => array(SOCIALSHAREPRIVACY_FIELD_TYPE),
+    ),
+  );
+}
+
+/**
+ * Implement hook_field_widget().
+ *
+ */
+function socialshareprivacy_field_widget_form(&$form, &$form_state, $field,
+ $instance, $langcode, $items, $delta = 0) {
+
+  $element = array(
+    '#type' => 'checkbox',
+    '#prefix' => '<br/><strong>Social Share Privacy</strong>',
+    /*'#description' => t('Placeholder for Social Share Privacy'),*/
+    '#title' => t('If marked the Social Share Privacy will be placed in this node.'),
+    '#default_value' => (isset($items[0]) && isset($items[0]['value'])) ? $items[0]['value'] : 1,
+    '#suffix' => '<br/>',
+  );
+ 
+  return $element;
+}
+
+/**
  * Implements hook_field_formatter_info().
  */
 function socialshareprivacy_field_formatter_info() {
   return array(
     SOCIALSHAREPRIVACY_FORMATTER => array(
-      'label' => t('Show Social Share Privacy on this Node'),
-      'field types' => array('boolean'),
+      'label' => t('SSP Formatter'),
+      'field types' => array(SOCIALSHAREPRIVACY_FIELD_TYPE),
+      'module' => 'socialshareprivacy',
     ),
   );
+}
+
+/**
+ * Implement hoo_field_is_empty().
+ */
+function socialshareprivacy_field_is_empty($item, $field) {
+  return FALSE;
+}
+
+function socialshareprivacy_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  if ($field['type'] == SOCIALSHAREPRIVACY_FIELD_TYPE) {
+    foreach ($items as $delta => $item) {
+      if (!is_array($item)) {
+        $items[$delta] = array('value' => $item);
+      }
+    }
+  }
 }
 
 /**
@@ -97,23 +163,25 @@ function socialshareprivacy_field_formatter_view($object_type, $object, $field, 
   }
 
   $element = array();
-  switch ($display['type']) {
-    case SOCIALSHAREPRIVACY_FORMATTER:
-      foreach ($items as $delta => $item) {
-        if ($item['value'] == "1") {
-          $element[$delta]['#type'] = 'markup';
+  if ($field['type']==SOCIALSHAREPRIVACY_FIELD_TYPE) {
+    switch ($display['type']) {
+      case SOCIALSHAREPRIVACY_FORMATTER:
+        foreach ($items as $delta => $item) {
+          if ($item['value'] == "1") {
+            $element[$delta]['#type'] = 'markup';
 
-          $htmlNodeId = 'socialshareprivacy-' . $object->nid;
-          $javascript = _socialshareprivacy_write_javascript($htmlNodeId, url('node/' . $object->nid, array('absolute' => TRUE)));
-          $markup = _socialshareprivacy_get_markup($htmlNodeId);
-          if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && drupal_strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            $markup =  $markup . '<script type="text/javascript">' . $javascript . '</script>';
+            $htmlNodeId = $field['field_name'] . '-' . $object->nid;
+            $javascript = _socialshareprivacy_write_javascript($htmlNodeId, url('node/' . $object->nid, array('absolute' => TRUE)));
+            $markup = _socialshareprivacy_get_markup($htmlNodeId);
+            if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && drupal_strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+              $markup =  $markup . '<script type="text/javascript">' . $javascript . '</script>';
+            }
+
+            $element[$delta]['#markup'] = $markup;
           }
-
-          $element[$delta]['#markup'] = $markup;
         }
-      }
-      break;
+        break;
+    }
   }
 
   return $element;
@@ -220,8 +288,39 @@ function _socialshareprivacy_get_markup($nodeId = 'socialshareprivacy') {
 
 /**
  * writes the javascript to the page
+ *
+ *
+ * @param $nodeId
+ *   The unique javascript id.
+ * @param $url
+ *   The url to share.
+ * @param $library_path
+ *   The patch to SSP.
  */
 function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $url = '', $library_path = '') {
+
+  $options = _socialshareprivacy_get_javascript_options($url, $library_path);
+
+  $minFileNamePart = '.min';
+  if (variable_get('socialshareprivacy_js_minified', 'true') == 'false') {
+    $minFileNamePart = '';
+  }
+
+  drupal_add_js(_socialshareprivacy_get_path() . '/jquery.socialshareprivacy' . $minFileNamePart . '.js', array('group' => JS_LIBRARY));
+  drupal_add_js('(function ($) { jQuery(document).ready(function () { if(jQuery("#' . $nodeId . '").length > 0){ jQuery("#' . $nodeId . '").socialSharePrivacy(' . $options . ');' . _socialshareprivacy_external_link() . ' } }); })(jQuery);', 'inline');
+
+  return '(function ($) { jQuery(document).ready(function () { if(jQuery("#' . $nodeId . '").length > 0){ jQuery("#' . $nodeId . '").socialSharePrivacy(' . $options . ');' . _socialshareprivacy_external_link() . ' } }); })(jQuery);';
+}
+
+/**
+ * Return the javascript options
+ *
+ * @param $url
+ *   The url to share.
+ * @param $library_path
+ *   The patch to SSP.
+ */
+function _socialshareprivacy_get_javascript_options($url = '', $library_path = '') {
   global $language;
 
   $path = $library_path;
@@ -230,7 +329,7 @@ function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $u
   }
   $facebook_dummy = base_path() . $path . '/socialshareprivacy/images/dummy_facebook.png';
   if ($language->language != 'de' && variable_get('socialshareprivacy_force_german', 'false') == 'false') {
-    $facebook_dummy = base_path() . $path . '/socialshareprivacy/images/dummy_facebook_en.png';
+    $facebook_dummy = drupal_get_path('module', 'socialshareprivacy') . '/images/dummy_facebook.png';
   }
 
   /* use the german 'default' texts */
@@ -305,15 +404,7 @@ function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $u
   $options = $options . "
           }";
 
-  $minFileNamePart = '.min';
-  if (variable_get('socialshareprivacy_js_minified', 'true') == 'false') {
-    $minFileNamePart = '';
-  }
-
-  drupal_add_js($path . '/jquery.socialshareprivacy' . $minFileNamePart . '.js', array('group' => JS_LIBRARY));
-  drupal_add_js('(function ($) { jQuery(document).ready(function () { if(jQuery("#' . $nodeId . '").length > 0){ jQuery("#' . $nodeId . '").socialSharePrivacy(' . $options . ');' . _socialshareprivacy_external_link() . ' } }); })(jQuery);', 'inline');
-
-  return '(function ($) { jQuery(document).ready(function () { if(jQuery("#' . $nodeId . '").length > 0){ jQuery("#' . $nodeId . '").socialSharePrivacy(' . $options . ');' . _socialshareprivacy_external_link() . ' } }); })(jQuery);';
+  return $options;
 }
 
 /**
@@ -337,7 +428,7 @@ function _socialshareprivacy_admin_settings_check_plugin_path($form_element) {
  * Get the status on/off for a service.
  */
 function _socialshareprivacy_service_status($service) {
-    $settings = variable_get('socialshareprivacy_services', array(1, 1, 1));
+    $settings = variable_get('socialshareprivacy_services', unserialize(SOCIALSHAREPRIVACY_DEFAULT_VALUE_SERVICES));
     if (array_key_exists($service, $settings) && $settings[$service] !== 0) {
         return "on";
     }
@@ -348,7 +439,7 @@ function _socialshareprivacy_service_status($service) {
  * Get the status on/off for a perma option.
  */
 function _socialshareprivacy_service_permaoption_status($service) {
-    $settings = variable_get('socialshareprivacy_services_permaoption', array(1, 1, 1));
+    $settings = variable_get('socialshareprivacy_services_permaoption', unserialize(SOCIALSHAREPRIVACY_DEFAULT_VALUE_SERVICES));
     if (array_key_exists($service, $settings) && $settings[$service] !== 0) {
         return "on";
     }

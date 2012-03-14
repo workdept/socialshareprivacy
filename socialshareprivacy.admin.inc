@@ -25,22 +25,22 @@ function socialshareprivacy_admin_settings() {
     $form['socialshareprivacy_services'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Enabled services'),
-        '#default_value' => variable_get('socialshareprivacy_services', array(1, 1, 1)),
+        '#default_value' => variable_get('socialshareprivacy_services', unserialize(SOCIALSHAREPRIVACY_DEFAULT_VALUE_SERVICES)),
         '#options' => array(
             'facebook' => 'Facebook',
             'twitter' => 'Twitter',
-            'gplus' => 'Google Plus',
+            'gplus' => 'Google +',
         ),
     );
 
     $form['socialshareprivacy_services_permaoption'] = array(
         '#type' => 'checkboxes',
-        '#title' => t('Enabled perma_options'),
-        '#default_value' => variable_get('socialshareprivacy_services_permaoption', array(1, 1, 1)),
+        '#title' => t('Enabled Prema-options'),
+        '#default_value' => variable_get('socialshareprivacy_services_permaoption', unserialize(SOCIALSHAREPRIVACY_DEFAULT_VALUE_SERVICES)),
         '#options' => array(
             'facebook' => 'Facebook',
             'twitter' => 'Twitter',
-            'gplus' => 'Google Plus',
+            'gplus' => 'Google +',
         ),
     );
 
@@ -110,7 +110,12 @@ function socialshareprivacy_admin_settings() {
 }
 
 function socialshareprivacy_admin_fieldmgmt() {
-    $ret[] = array('#markup' => t('Enable/Disable the Socialshareprivacy field for your contenttypes:'));
+
+  if (!module_exists('field_ui')) {
+    drupal_set_message($t('Enable the Field UI module to adjust the Social Share Privacy field settings, manage node fields or manage the display.'), 'warning');
+  }
+
+    $ret[] = array('#markup' => t('Enable/Disable the Socialshareprivacy field for your content types (disabling will delete the data for all nodes of the content type):<br/>'));
     $ret[] = drupal_get_form('socialshareprivacy_form_admin_fieldmgmt');
     return $ret;
 }
@@ -119,7 +124,7 @@ function socialshareprivacy_form_admin_fieldmgmt($form, &$form_state) {
     $form = array();
 
     $head = array(
-      'contenttype' => array('data' => t('Contenttype'), 'field' => 'contenttype'),
+      'contenttype' => array('data' => t('Content types'), 'field' => 'contenttype'),
     );
 
     $options = array();
@@ -169,4 +174,6 @@ function socialshareprivacy_form_admin_fieldmgmt_submit($form, &$form_state) {
       __add_custom_field($entity, drupal_substr($k, 14));
     }
   }
+
+  drupal_set_message(t('The configuration options have been saved.'));
 }
