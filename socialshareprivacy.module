@@ -195,7 +195,7 @@ function socialshareprivacy_block_info() {
     // info: The name of the block.
     'info' => t('Social Share Privacy'),
     // Block caching options (per role, per user, etc.)
-    'cache' => 'BLOCK_NO_CACHE',
+    'cache' => DRUPAL_NO_CACHE,
   );
 
   return $blocks;
