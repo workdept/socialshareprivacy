@@ -75,8 +75,16 @@ function socialshareprivacy_update_7000() {
   return t('Social share privacy: Added a field to every contenttype. The nodes itself are not updated.');
 }
 
-function socialshareprivacy_update_7101() {
-  return t('Social share privacy: Sorry for the node pollution ...');
+function socialshareprivacy_update_7001() {
+  $ssp_field_name = variable_get('field_socialshareprivacy');
+  if (field_read_field($ssp_field_name)) {
+    foreach (node_type_get_names() as $name => $value) {
+      __remove_custom_field('node', $name);
+    }
+    field_delete_field($ssp_field_name); // is needed because of core bug
+    field_purge_batch(2000);
+  }
+  return t('Social share privacy: is way cleaner and stable now :D (sadly all your previous field data was erased. Sorry)');
 }
 
 function __add_custom_field($entity, $bundle) {
