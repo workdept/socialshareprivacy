@@ -29,7 +29,7 @@ function socialshareprivacy_admin_settings() {
         '#options' => array(
             'facebook' => 'Facebook',
             'twitter' => 'Twitter',
-            'gplus' => 'Google +',
+            'gplus' => 'Google+',
         ),
     );
 
@@ -40,7 +40,7 @@ function socialshareprivacy_admin_settings() {
         '#options' => array(
             'facebook' => 'Facebook',
             'twitter' => 'Twitter',
-            'gplus' => 'Google +',
+            'gplus' => 'Google+',
         ),
     );
 
