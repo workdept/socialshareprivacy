@@ -327,11 +327,14 @@ function _socialshareprivacy_get_javascript_options($url = '', $library_path = '
   if ($path == '') {
     $path = _socialshareprivacy_get_path();
   }
-  $facebook_dummy = base_path() . $path . '/socialshareprivacy/images/dummy_facebook.png';
-  if ($language->language != 'de' && variable_get('socialshareprivacy_force_german', 'false') == 'false') {
-    $facebook_dummy = drupal_get_path('module', 'socialshareprivacy') . '/images/dummy_facebook.png';
+  $facebook_dummy = base_path() . $path . '/socialshareprivacy/images/dummy_facebook_en.png';
+  if ($language->language == 'de' || variable_get('socialshareprivacy_force_german', 'false') == 'true') {
+    $facebook_dummy = base_path() . $path . '/socialshareprivacy/images/dummy_facebook.png';
   }
-
+  elseif ($language->language != 'en') {
+    $facebook_dummy = base_path() . drupal_get_path('module', 'socialshareprivacy') . '/images/dummy_facebook.png';
+  }
+ 
   /* use the german 'default' texts */
   if (variable_get('socialshareprivacy_force_german', 'true') == 'true') {
     $options = "{
