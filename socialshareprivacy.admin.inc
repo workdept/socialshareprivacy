@@ -4,7 +4,7 @@
  * Administration settings form area for Social Share Privacy module
  */
 
-require_once(DRUPAL_ROOT . '/sites/all/modules/socialshareprivacy/socialshareprivacy.install');
+require_once(drupal_get_path('module', 'socialshareprivacy') . '/socialshareprivacy.install');
 
  /**
  * General configuration form for controlling the behaviour.
