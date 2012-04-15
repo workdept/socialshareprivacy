@@ -76,7 +76,9 @@ function socialshareprivacy_update_7002() {
   // Sets the new variables
   variable_set('socialshareprivacy_field_name', $ssp_field_name);
   variable_set('socialshareprivacy_field_type', 'ssp_placeholder');
+
   variable_set('socialshareprivacy_formatter', 'ssp_node_formatter');
+
   variable_set('socialshareprivacy_widget', 'ssp_widget');
   if (field_read_field($ssp_field_name)) {
     foreach (node_type_get_names() as $name => $value) {
@@ -85,9 +87,9 @@ function socialshareprivacy_update_7002() {
     field_delete_field($ssp_field_name); // is needed because of core bug
     field_purge_batch(2000);
   }
-  drupal_set_message(t('Please check the new !settingslink field settings.',
+  drupal_set_message(check_plain(t('Please check the new !settingslink field settings.',
       array('!settingslink' => l(t('Social share privacy'), 'admin/config/user-interface/socialshareprivacy/fieldmgmt'))
-      ), 'warning'
+      )), 'warning'
   );
   return t('Existing socialshareprivacy fields deleted.');
 }

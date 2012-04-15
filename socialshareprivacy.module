@@ -74,6 +74,15 @@ function socialshareprivacy_menu() {
         'type' => MENU_LOCAL_TASK,
         'file' => 'socialshareprivacy.admin.inc',
     );
+    $items['admin/config/user-interface/socialshareprivacy/bulkupdate'] = array(
+        'title' => 'Bulk Update',
+        'description' => 'Update existing nodes',
+        'page callback' => 'socialshareprivacy_admin_bulkupdate',
+        'access arguments' => array('administer socialshareprivacy'),
+        'weight' => -18,
+        'type' => MENU_LOCAL_TASK,
+        'file' => 'socialshareprivacy.admin.inc',
+    );
 
     return $items;
 }
@@ -109,17 +118,17 @@ function socialshareprivacy_field_widget_info() {
  *
  */
 function socialshareprivacy_field_widget_form(&$form, &$form_state, $field,
- $instance, $langcode, $items, $delta = 0) {
+  $instance, $langcode, $items, $delta = 0) {
 
   $element = array(
     '#type' => 'checkbox',
     '#prefix' => '<br/><strong>Social Share Privacy</strong>',
-    /*'#description' => t('Placeholder for Social Share Privacy'),*/
+    /* '#description' => t('Placeholder for Social Share Privacy'), */
     '#title' => t('If marked the Social Share Privacy will be placed in this node.'),
     '#default_value' => (isset($items[0]) && isset($items[0]['value'])) ? $items[0]['value'] : 1,
     '#suffix' => '<br/>',
   );
- 
+
   return $element;
 }
 
@@ -337,7 +346,7 @@ function _socialshareprivacy_get_javascript_options($url = '', $library_path = '
   elseif ($language->language != 'en') {
     $facebook_dummy = base_path() . drupal_get_path('module', 'socialshareprivacy') . '/images/dummy_facebook.png';
   }
- 
+
   /* use the german 'default' texts */
   if (variable_get('socialshareprivacy_force_german', 'true') == 'true') {
     $options = "{

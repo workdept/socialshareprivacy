@@ -101,7 +101,7 @@ function socialshareprivacy_admin_settings() {
       ),
       '#default_value' => variable_get('socialshareprivacy_neutral_button', 'false'),
     );
-    
+
     $form['socialshareprivacy_cookie_expires'] = array(
       '#type' => 'textfield',
       '#title' => t('Cookie expires'),
@@ -186,4 +186,108 @@ function socialshareprivacy_form_admin_fieldmgmt_submit($form, &$form_state) {
   }
 
   drupal_set_message(t('The configuration options have been saved.'));
+}
+
+function socialshareprivacy_admin_bulkupdate() {
+
+    $ret[] = array('#markup' => t('Update the Socialshareprivacy boolean for existing nodes:<br/>Nothing to select? !url.<br/>', array('!url' => l(t('Enable a content type'), 'admin/config/user-interface/socialshareprivacy/fieldmgmt'))));
+    $ret[] = drupal_get_form('socialshareprivacy_form_admin_bulk');
+    return $ret;
+}
+
+function socialshareprivacy_form_admin_bulk($form, &$form_state) {
+    $form = array();
+
+    $head = array(
+      'contenttype' => array('data' => t('Content types'), 'field' => 'contenttype'),
+    );
+
+    $options = array();
+    $options['none'] = 'none';
+    foreach (node_type_get_names() as $name => $value) {
+      if (field_info_instance('node', variable_get('socialshareprivacy_field_name'), $name)) {
+        $options[$name] = $value;
+      }
+    }
+
+    $form['ssp_bulkupdate_type'] = array(
+      '#type' => 'select',
+      '#title' => t('Choose a content type'),
+      '#options' => $options,
+      '#default_value' => 'none',
+    );
+
+    $options = array();
+    $options[LANGUAGE_NONE] = t('Undetermined');
+    foreach (language_list() as $obj) {
+      $options[$obj->language] = $obj->native;
+    }
+    $form['ssp_bulkupdate_langs'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Choose desired languages'),
+      '#options' => $options,
+    );
+
+    $form['ssp_bulkupdate_value'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Checked will put the SSP field on the node(s).'),
+      '#field_prefix' => '<b>Choose the value to set</b><br/>',
+    );
+
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Update'),
+    );
+
+    return $form;
+}
+
+function socialshareprivacy_form_admin_bulk_submit($form, &$form_state) {
+  $form_values =  $form_state['values'];
+  $contenttype = $form_values['ssp_bulkupdate_type'];
+  $valuetoset = $form_values['ssp_bulkupdate_value'];
+  if ($valuetoset=='') {
+    $valuetoset = '0';
+  }
+  $lang_choosen = FALSE;
+  $langs = $form_values['ssp_bulkupdate_langs'];
+  foreach ($langs as $lang => $value) {
+    if ($lang==$value) {
+      $lang_choosen = TRUE;
+    }
+  }
+
+  if ($contenttype!='none' && $lang_choosen) {
+    $node_type = 'page'; // Machine name of the content type
+    $entity = 'node';
+
+    $query = new EntityFieldQuery;
+    $result = $query
+      ->entityCondition('entity_type', $entity)
+      ->propertyCondition('type', $contenttype)
+      ->execute();
+
+    if (!empty($result['node'])) {
+      $nodes = entity_load('node', array_keys($result['node']));
+
+      foreach ($nodes as $node) {
+        foreach ($langs as $lang => $value) {
+          if ($lang == $value) {
+            $node->field_socialshareprivacy[$lang][0]['value'] = $valuetoset;
+          }
+        }
+        node_save($node);
+      }
+    }
+    drupal_set_message(t('The nodes (@contenttype) are updated.', array('@contenttype' => $contenttype)));
+  }
+  else {
+    if ($contenttype=='none') {
+    drupal_set_message(t('Choose a content type.'), 'error');
+    }
+
+    if (!$lang_choosen) {
+      drupal_set_message(t('Choose at least one language.'), 'error');
+    }
+  }
 }
