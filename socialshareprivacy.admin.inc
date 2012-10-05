@@ -18,7 +18,7 @@ function socialshareprivacy_admin_settings() {
       '#type' => 'textfield',
       '#title' => t('Path'),
       '#default_value' => $socialshareprivacy_path,
-      '#description' => t('The location where SocialSharePrivacy plugin is installed. Relative paths are from the Drupal root directory.'),
+      '#description' => t('The location the socialSharePrivacy plugin is installed in. Use a path relative to the Drupal root directory.'),
       '#after_build' => array('_socialshareprivacy_admin_settings_check_plugin_path'),
     );
 
@@ -35,7 +35,8 @@ function socialshareprivacy_admin_settings() {
 
     $form['socialshareprivacy_services_permaoption'] = array(
         '#type' => 'checkboxes',
-        '#title' => t('Enabled Prema-options'),
+        '#title' => t('Enabled permanent options'),
+        '#description' => t('Enabling this option for a social network means that the user gets an option to enable permanent data transfer to the corresponding network, thus reverting to the non-privacy 1-click sharing workflow.'),
         '#default_value' => variable_get('socialshareprivacy_services_permaoption', unserialize(SOCIALSHAREPRIVACY_DEFAULT_VALUE_SERVICES)),
         '#options' => array(
             'facebook' => 'Facebook',
@@ -46,7 +47,7 @@ function socialshareprivacy_admin_settings() {
 
     $form['socialshareprivacy_facebook_action'] = array(
       '#type' => 'radios',
-      '#title' => t('Facebook Button action'),
+      '#title' => t('Facebook button action'),
       '#options' => array(
         'recommend' => t('Recommend'),
         'like' => t('Like'),
@@ -56,19 +57,19 @@ function socialshareprivacy_admin_settings() {
 
     $form['socialshareprivacy_ext_link'] = array(
       '#type' => 'radios',
-      '#title' => t('External link (Info icon)'),
+      '#title' => t('External link (info icon)'),
       '#default_value' => variable_get('socialshareprivacy_ext_link', ''),
       '#options' => array(
-        '' => ('no special aciton: Link will change the actual window.'),
-        'blank' => ('Change Link to a _blank window.'),
-        'remove' => ('Remove the click event of the link.'),
+        '' => t('Open the link in the current window.'),
+        'blank' => t('Open the link in a new window.'),
+        'remove' => t('Remove the click event of the link.'),
       ),
     );
 
     $form['socialshareprivacy_ext_link_target'] = array(
       '#type' => 'textfield',
       '#title' => t('Change default info link'),
-      '#description' => t('Specify here a url if you dont want to link to heise.'),
+      '#description' => t('If you do not want the info icon to link to the original explanatory page at heise.de you can override the target by specifying a URL here.'),
       '#default_value' => variable_get('socialshareprivacy_ext_link_target', ''),
     );
 
@@ -84,7 +85,7 @@ function socialshareprivacy_admin_settings() {
 
     $form['socialshareprivacy_force_german'] = array(
       '#type' => 'radios',
-      '#title' => t('Make it all german; use default texts from the plugin and dismiss translations'),
+      '#title' => t('Ignore Drupal\'s translations and use the original German texts from the plugin.'),
       '#options' => array(
         'true' => t('Yes'),
         'false' => t('No'),
@@ -94,7 +95,7 @@ function socialshareprivacy_admin_settings() {
 
     $form['socialshareprivacy_neutral_button'] = array(
       '#type' => 'radios',
-      '#title' => t('Use language neutral FB button'),
+      '#title' => t('Use language-neutral Facebook button'),
       '#options' => array(
         'true' => t('Yes'),
         'false' => t('No'),
@@ -104,8 +105,8 @@ function socialshareprivacy_admin_settings() {
 
     $form['socialshareprivacy_cookie_expires'] = array(
       '#type' => 'textfield',
-      '#title' => t('Cookie expires'),
-      '#description' => t('Expiration time of the Cookie.'),
+      '#title' => t('Cookie expiration time'),
+      '#description' => t('Cookie expiration time in days.'),
       '#default_value' => variable_get('socialshareprivacy_cookie_expires', '365'),
     );
 
@@ -122,7 +123,7 @@ function socialshareprivacy_admin_settings() {
 function socialshareprivacy_admin_fieldmgmt() {
 
   if (!module_exists('field_ui')) {
-    drupal_set_message($t('Enable the Field UI module to adjust the Social Share Privacy field settings, manage node fields or manage the display.'), 'warning');
+    drupal_set_message(t('Enable the Field UI module to adjust the Social Share Privacy field settings, manage node fields or manage the display.'), 'warning');
   }
 
     $ret[] = array('#markup' => t('Enable/Disable the Socialshareprivacy field for your content types (disabling will delete the data for all nodes of the content type):<br/>'));
@@ -212,7 +213,7 @@ function socialshareprivacy_form_admin_bulk($form, &$form_state) {
 
     $form['ssp_bulkupdate_type'] = array(
       '#type' => 'select',
-      '#title' => t('Choose a content type'),
+      '#title' => t('Please choose a content type'),
       '#options' => $options,
       '#default_value' => 'none',
     );
@@ -224,14 +225,14 @@ function socialshareprivacy_form_admin_bulk($form, &$form_state) {
     }
     $form['ssp_bulkupdate_langs'] = array(
       '#type' => 'checkboxes',
-      '#title' => t('Choose desired languages'),
+      '#title' => t('Please choose the desired languages'),
       '#options' => $options,
     );
 
     $form['ssp_bulkupdate_value'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Checked will put the SSP field on the node(s).'),
-      '#field_prefix' => '<b>Choose the value to set</b><br/>',
+      '#title' => t('Enable SSP'),
+      '#description' => t('If this box is checked then SSP will be enabled on the chosen nodes, otherwise it will be disabled.'),
     );
 
     $form['submit'] = array(
@@ -279,15 +280,15 @@ function socialshareprivacy_form_admin_bulk_submit($form, &$form_state) {
         node_save($node);
       }
     }
-    drupal_set_message(t('The nodes (@contenttype) are updated.', array('@contenttype' => $contenttype)));
+    drupal_set_message(t('The nodes of type "@contenttype" have been updated.', array('@contenttype' => $contenttype)));
   }
   else {
     if ($contenttype=='none') {
-    drupal_set_message(t('Choose a content type.'), 'error');
+    drupal_set_message(t('Please choose a content type.'), 'error');
     }
 
     if (!$lang_choosen) {
-      drupal_set_message(t('Choose at least one language.'), 'error');
+      drupal_set_message(t('Please choose at least one language.'), 'error');
     }
   }
 }

@@ -6,7 +6,7 @@
  */
 
 /**
- * The default path to the SocialSharePrivacy directory.
+ * The default path to the socialSharePrivacy directory.
  */
 define('SOCIALSHAREPRIVACY_PATH', 'sites/all/libraries/socialshareprivacy');
 define('SOCIALSHAREPRIVACY_FIELD_TYPE', variable_get('socialshareprivacy_field_type'));
@@ -21,7 +21,7 @@ function socialshareprivacy_help($path, $arg) {
   switch ($path) {
     case 'admin/config/user-interface/socialshareprivacy':
     case 'admin/help#socialshareprivacy':
-      return '<p>' . t('Adds social network buttons to content types and provides a block with the 2-click-method “<a href="http://www.heise.de/extras/socialshareprivacy/" target="_blank">socialSharePrivacy</a>” by Heise Zeitschriften Verlag. So the networks won\'t receive data unless the visitor wants to.') . '</p>';
+      return '<p>' . t('Adds social network buttons to content types and provides a block with the 2-click method “<a href="http://www.heise.de/extras/socialshareprivacy/" target="_blank">socialSharePrivacy</a>” by Heise Zeitschriften Verlag. With this privacy enhancement in place the social networks will not receive any tracking data unless the user chooses to activate the respective share button.') . '</p>';
   }
 }
 
@@ -32,10 +32,10 @@ function socialshareprivacy_help($path, $arg) {
 function socialshareprivacy_permission() {
   return array(
     'administer socialshareprivacy' => array(
-      'title' => t('administer Social Share Privacy'),
+      'title' => t('administer socialSharePrivacy'),
     ),
     'access socialshareprivacy' => array(
-      'title' => t('access Social Share Privacy'),
+      'title' => t('access socialSharePrivacy'),
     ),
   );
 }
@@ -47,8 +47,8 @@ function socialshareprivacy_menu() {
     $items = array();
 
     $items['admin/config/user-interface/socialshareprivacy'] = array(
-        'title' => 'Social share privacy',
-        'description' => 'Configure settings for social share privacy',
+        'title' => 'socialSharePrivacy',
+        'description' => 'Configure settings for socialSharePrivacy',
         'page callback' => 'drupal_get_form',
         'page arguments' => array('socialshareprivacy_admin_settings'),
         'access arguments' => array('administer socialshareprivacy'),
@@ -57,7 +57,7 @@ function socialshareprivacy_menu() {
     );
     $items['admin/config/user-interface/socialshareprivacy/settings'] = array(
         'title' => 'Settings',
-        'description' => 'Configure settings for social share privacy',
+        'description' => 'Configure settings for socialSharePrivacy',
         'page callback' => 'drupal_get_form',
         'page arguments' => array('socialshareprivacy_admin_settings'),
         'access arguments' => array('administer socialshareprivacy'),
@@ -67,7 +67,7 @@ function socialshareprivacy_menu() {
     );
     $items['admin/config/user-interface/socialshareprivacy/fieldmgmt'] = array(
         'title' => 'Field Management',
-        'description' => 'Add social share privacy fields to your contenttypes',
+        'description' => 'Add socialSharePrivacy fields to your contenttypes',
         'page callback' => 'socialshareprivacy_admin_fieldmgmt',
         'access arguments' => array('administer socialshareprivacy'),
         'weight' => -19,
@@ -93,8 +93,8 @@ function socialshareprivacy_menu() {
 function socialshareprivacy_field_info() {
   return array(
     SOCIALSHAREPRIVACY_FIELD_TYPE => array(
-      'label' => t('Placeholder for Social Share Privacy'),
-      'description' => t('If marked the Social Share Privacy will be placed in this node.'),
+      'label' => t('Placeholder for socialSharePrivacy'),
+      'description' => t('Move this field to the position you want the socialSharePrivacy to be displayed in.'),
       'default_widget' => SOCIALSHAREPRIVACY_WIDGET,
       'default_formatter' => SOCIALSHAREPRIVACY_FORMATTER,
     ),
@@ -122,9 +122,10 @@ function socialshareprivacy_field_widget_form(&$form, &$form_state, $field,
 
   $element = array(
     '#type' => 'checkbox',
-    '#prefix' => '<br/><strong>Social Share Privacy</strong>',
-    /* '#description' => t('Placeholder for Social Share Privacy'), */
-    '#title' => t('If marked the Social Share Privacy will be placed in this node.'),
+    '#prefix' => '<br/><strong>socialSharePrivacy</strong>',
+    /* '#description' => t('Placeholder for socialSharePrivacy'), */
+    '#title' => t('Display socialSharePrivacy'),
+    '#description' => t('If this box is checked then socialSharePrivacy will be displayed on the view of this node.'),
     '#default_value' => (isset($items[0]) && isset($items[0]['value'])) ? $items[0]['value'] : 1,
     '#suffix' => '<br/>',
   );
@@ -202,7 +203,7 @@ function socialshareprivacy_field_formatter_view($object_type, $object, $field, 
 function socialshareprivacy_block_info() {
   $blocks['socialshareprivacy_block'] = array(
     // info: The name of the block.
-    'info' => t('Social Share Privacy'),
+    'info' => t('socialSharePrivacy'),
     // Block caching options (per role, per user, etc.)
     'cache' => DRUPAL_NO_CACHE,
   );
@@ -216,7 +217,7 @@ function socialshareprivacy_block_info() {
 function socialshareprivacy_block_configure($block_name = '') {
   if ($block_name == 'socialshareprivacy_block') {
     $form['help'] = array(
-      '#markup' => t('Additional options at the <a href="/admin/config/user-interface/socialshareprivacy">configuration page of Social Share Privacy</a>.'),
+      '#markup' => t('Additional options can be set on the <a href="/admin/config/user-interface/socialshareprivacy">socialSharePrivacy configuration page</a>.'),
     );
 
     return $form;
@@ -242,7 +243,7 @@ function _socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
   $block = array();
 
   if ($op == 'view') {
-    $block['subject'] = t('Social share privacy');
+    $block['subject'] = t('socialSharePrivacy');
     $block['content'] = _socialshareprivacy_get_markup('socialshareprivacy-block');
 
     _socialshareprivacy_write_javascript('socialshareprivacy-block');
@@ -252,7 +253,7 @@ function _socialshareprivacy_block($op = 'list', $delta = 0, $edit = array()) {
 }
 
 /**
- * Return the path to the SocialSharePrivacy plugin.
+ * Return the path to the socialSharePrivacy plugin.
  */
 function _socialshareprivacy_get_path() {
   static $library_path = NULL;
@@ -383,7 +384,7 @@ function _socialshareprivacy_get_javascript_options($url = '', $library_path = '
                   'dummy_img' : '" . $facebook_dummy . "',
                   'perma_option' : '" . _socialshareprivacy_service_permaoption_status("facebook") . "',
                   'language'       : '" . _socialshareprivacy_map_facebook_language($language->language) . "',
-                  'txt_info'       : '" . _socialshareprivacy_translate_for_javascript("2 clicks for more privacy: Click on this button to activate the Facebook share button. Activating the share button will already transfer data to Facebook. See more on <em>i</em>") . "',
+                  'txt_info'       : '" . _socialshareprivacy_translate_for_javascript("2 clicks for more privacy: Click here to activate the Facebook share button. Please note that activating the share button will already transfer data to Facebook. For more information please click on the <em>i</em>") . "',
                   'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "',
                   'action'         : '" . variable_get('socialshareprivacy_facebook_action', 'recommend') . "'
               },
@@ -392,7 +393,7 @@ function _socialshareprivacy_get_javascript_options($url = '', $library_path = '
                   'dummy_img' : '" . base_path() . $path . "/socialshareprivacy/images/dummy_twitter.png',
                   'perma_option' : '" . _socialshareprivacy_service_permaoption_status("twitter") . "',
                   'language'       : '" . $language->language . "',
-                  'txt_info'       : '" . _socialshareprivacy_translate_for_javascript("2 clicks for more privacy: Click on this button to activate the Twitter share button. Activating the share button will already transfer data to Facebook. See more on <em>i</em>") . "',
+                  'txt_info'       : '" . _socialshareprivacy_translate_for_javascript("2 clicks for more privacy: Click here to activate the Twitter share button. Please note that activating the share button will already transfer data to Twitter. For more information please click on the <em>i</em>") . "',
                   'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "'
               },
               gplus : {
@@ -400,14 +401,14 @@ function _socialshareprivacy_get_javascript_options($url = '', $library_path = '
                   'dummy_img' : '" . base_path() . $path . "/socialshareprivacy/images/dummy_gplus.png',
                   'perma_option' : '" . _socialshareprivacy_service_permaoption_status("gplus") . "',
                   'language'       : '" . $language->language . "',
-                  'txt_info'       : '" . _socialshareprivacy_translate_for_javascript("2 clicks for more privacy: Click on this button to activate the Google+ share button. Activating the share button will already transfer data to Facebook. See more on <em>i</em>") . "',
+                  'txt_info'       : '" . _socialshareprivacy_translate_for_javascript("2 clicks for more privacy: Click here to activate the Google+ share button. Please note that activating the share button will already transfer data to Google. For more information please click on the <em>i</em>") . "',
                   'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "'
               }
           },
           'css_path': '" . base_path() . $path . "/socialshareprivacy/socialshareprivacy.css',
           'cookie_expires' : '" . (is_numeric(variable_get('socialshareprivacy_cookie_expires', '365')) ? variable_get('socialshareprivacy_cookie_expires', '365') : '365') . "',
-          'txt_help'       : '" . _socialshareprivacy_translate_for_javascript("If you enable these options, Facebook, Twitter or Google will receive and strore information about your visitors. Read more by clicking on <em>i</em>") . "',
-          'settings_perma' : '" . _socialshareprivacy_translate_for_javascript("Agree for permanent activation and data transfer:") . "',
+          'txt_help'       : '" . _socialshareprivacy_translate_for_javascript("If you enable any of these options then the corresponding social network will receive and store data about your visit on this site. For more information please click on the <em>i</em>") . "',
+          'settings_perma' : '" . _socialshareprivacy_translate_for_javascript("Agree to permanent activation and thus data transfer:") . "',
           'info_link': '" . url(variable_get('socialshareprivacy_ext_link_target', 'http://www.heise.de/ct/artikel/2-Klicks-fuer-mehr-Datenschutz-1333879.html')) . "'";
   }
 
@@ -433,7 +434,7 @@ function _socialshareprivacy_get_javascript_options($url = '', $library_path = '
 function _socialshareprivacy_admin_settings_check_plugin_path($form_element) {
   $library_path = $form_element['#value'];
   if (!is_dir($library_path) || !(file_exists($library_path . '/jquery.socialshareprivacy.js') && file_exists($library_path . '/jquery.socialshareprivacy.min.js'))) {
-    form_set_error($form_element['#parents'][0], t('You need to download the !socialshareprivacy and extract the entire contents of the archive into the %path folder of your server.', array('!socialshareprivacy' => l(t('SocialSharePrivacy plugin'), 'http://www.heise.de/extras/socialshareprivacy/'), '%path' => $library_path)));
+    form_set_error($form_element['#parents'][0], t('You need to download the !socialshareprivacy and extract the entire contents of the archive into the %path folder of your server.', array('!socialshareprivacy' => l(t('socialSharePrivacy plugin'), 'http://www.heise.de/extras/socialshareprivacy/'), '%path' => $library_path)));
   }
 
   return $form_element;
