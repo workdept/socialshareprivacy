@@ -466,7 +466,7 @@ function _socialshareprivacy_service_permaoption_status($service) {
  * Translates and escapes '.
  */
 function _socialshareprivacy_translate_for_javascript($text) {
-    return addslashes(t($text));
+    return addslashes(t('@txt', array('@txt' => $text)));
 }
 
 /**
