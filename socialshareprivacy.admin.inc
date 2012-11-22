@@ -70,7 +70,7 @@ function socialshareprivacy_admin_settings() {
       '#type' => 'textfield',
       '#title' => t('Change default info link'),
       '#description' => t('If you do not want the info icon to link to the original explanatory page at heise.de you can override the target by specifying a URL here.'),
-      '#default_value' => variable_get('socialshareprivacy_ext_link_target', ''),
+      '#default_value' => variable_get('socialshareprivacy_ext_link_target', 'http://www.heise.de/ct/artikel/2-Klicks-fuer-mehr-Datenschutz-1333879.html'),
     );
 
     $form['socialshareprivacy_js_minified'] = array(
