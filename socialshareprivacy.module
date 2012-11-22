@@ -21,7 +21,7 @@ function socialshareprivacy_help($path, $arg) {
   switch ($path) {
     case 'admin/config/user-interface/socialshareprivacy':
     case 'admin/help#socialshareprivacy':
-      return '<p>' . t('Adds social network buttons to content types and provides a block with the 2-click method “<a href="http://www.heise.de/extras/socialshareprivacy/" target="_blank">socialSharePrivacy</a>” by Heise Zeitschriften Verlag. With this privacy enhancement in place the social networks will not receive any tracking data unless the user chooses to activate the respective share button.') . '</p>';
+      return '<p>' . t('Adds social network buttons to content types and provides a !urlBlock with the 2-click-method “!urlHeise“ by Heise Zeitschriften Verlag. So the networks won\'t receive data unless the visitor wants to.', array('!urlBlock' => l(t('block'), 'admin/structure/block/manage/socialshareprivacy/socialshareprivacy_block/configure'), '!urlHeise' => l(t('socialSharePrivacy'), 'http://www.heise.de/extras/socialshareprivacy/', array('attributes' => array('target' => '_blank'))))) . '</p>';
   }
 }
 
