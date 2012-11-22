@@ -83,6 +83,16 @@ function socialshareprivacy_admin_settings() {
       '#default_value' => variable_get('socialshareprivacy_js_minified', 'true'),
     );
 
+    $form['socialshareprivacy_reset_css'] = array(
+      '#type' => 'radios',
+      '#title' => t('Include reset.css'),
+      '#options' => array(
+        'true' => t('Yes'),
+        'false' => t('No'),
+      ),
+      '#default_value' => variable_get('socialshareprivacy_reset_css', 'false'),
+    );
+
     $form['socialshareprivacy_force_german'] = array(
       '#type' => 'radios',
       '#title' => t('Ignore Drupal\'s translations and use the original German texts from the plugin.'),

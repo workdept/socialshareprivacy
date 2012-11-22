@@ -316,6 +316,10 @@ function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $u
     $minFileNamePart = '';
   }
 
+  if (variable_get('socialshareprivacy_reset_css', 'false') == 'true') {
+    drupal_add_css(drupal_get_path('module', 'socialshareprivacy') . '/css/reset.css');
+  }
+
   drupal_add_js(_socialshareprivacy_get_path() . '/jquery.socialshareprivacy' . $minFileNamePart . '.js', array('group' => JS_LIBRARY));
   drupal_add_js('(function ($) { jQuery(document).ready(function () { if(jQuery("#' . $nodeId . '").length > 0){ jQuery("#' . $nodeId . '").socialSharePrivacy(' . $options . ');' . _socialshareprivacy_external_link() . ' } }); })(jQuery);', 'inline');
 
