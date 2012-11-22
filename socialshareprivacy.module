@@ -21,7 +21,7 @@ function socialshareprivacy_help($path, $arg) {
   switch ($path) {
     case 'admin/config/user-interface/socialshareprivacy':
     case 'admin/help#socialshareprivacy':
-      return '<p>' . t('Adds social network buttons to content types and provides a !urlBlock with the 2-click-method “!urlHeise“ by Heise Zeitschriften Verlag. So the networks won\'t receive data unless the visitor wants to.', array('!urlBlock' => l(t('block'), 'admin/structure/block/manage/socialshareprivacy/socialshareprivacy_block/configure'), '!urlHeise' => l(t('socialSharePrivacy'), 'http://www.heise.de/extras/socialshareprivacy/', array('attributes' => array('target' => '_blank'))))) . '</p>';
+      return '<p>' . t('Adds social network buttons to content types and provides a <a href="@urlBlock">block</a> with the 2-click-method “<a href="@urlHeise" target="_blank">socialSharePrivacy</a>“ by Heise Zeitschriften Verlag. So the networks won\'t receive data unless the visitor wants to.', array('@urlBlock' => url('admin/structure/block/manage/socialshareprivacy/socialshareprivacy_block/configure'), '@urlHeise' => 'http://www.heise.de/extras/socialshareprivacy/')) . '</p>';
   }
 }
 
@@ -434,7 +434,7 @@ function _socialshareprivacy_get_javascript_options($url = '', $library_path = '
 function _socialshareprivacy_admin_settings_check_plugin_path($form_element) {
   $library_path = $form_element['#value'];
   if (!is_dir($library_path) || !(file_exists($library_path . '/jquery.socialshareprivacy.js') && file_exists($library_path . '/jquery.socialshareprivacy.min.js'))) {
-    form_set_error($form_element['#parents'][0], t('You need to download the !socialshareprivacy and extract the entire contents of the archive into the %path folder of your server.', array('!socialshareprivacy' => l(t('socialSharePrivacy plugin'), 'http://www.heise.de/extras/socialshareprivacy/'), '%path' => $library_path)));
+    form_set_error($form_element['#parents'][0], t('You need to download the <a href="@urlSSP" target="_blank">socialSharePrivacy</a> and extract the entire contents of the archive into the %path folder of your server.', array('@urlSSP' => 'http://www.heise.de/extras/socialshareprivacy/', '%path' => $library_path)));
   }
 
   return $form_element;
