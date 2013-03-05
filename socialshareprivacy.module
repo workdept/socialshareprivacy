@@ -309,6 +309,11 @@ function _socialshareprivacy_get_markup($nodeId = 'socialshareprivacy') {
  */
 function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $url = '', $library_path = '') {
 
+  $path = $library_path;
+  if ($path == '') {
+    $path = _socialshareprivacy_get_path();
+  }
+
   $options = _socialshareprivacy_get_javascript_options($url, $library_path);
 
   $minFileNamePart = '.min';
@@ -317,13 +322,31 @@ function _socialshareprivacy_write_javascript($nodeId = 'socialshareprivacy', $u
   }
 
   if (variable_get('socialshareprivacy_reset_css', 'false') == 'true') {
-    drupal_add_css(drupal_get_path('module', 'socialshareprivacy') . '/css/reset.css');
+    drupal_add_css(drupal_get_path('module', 'socialshareprivacy') . '/css/reset.css',
+    array(
+      'every_page' => TRUE,
+    ));
   }
 
-  drupal_add_js(_socialshareprivacy_get_path() . '/jquery.socialshareprivacy' . $minFileNamePart . '.js', array('group' => JS_LIBRARY));
-  drupal_add_js('(function ($) { jQuery(document).ready(function () { if(jQuery("#' . $nodeId . '").length > 0){ jQuery("#' . $nodeId . '").socialSharePrivacy(' . $options . ');' . _socialshareprivacy_external_link() . ' } }); })(jQuery);', 'inline');
+  drupal_add_css($path . '/socialshareprivacy/socialshareprivacy.css',
+    array(
+      'every_page' => TRUE,
+    ));
+  drupal_add_js($path . '/jquery.socialshareprivacy' . $minFileNamePart . '.js',
+    array(
+      'group' => JS_LIBRARY,
+      'every_page' => TRUE,
+    ));
 
-  return '(function ($) { jQuery(document).ready(function () { if(jQuery("#' . $nodeId . '").length > 0){ jQuery("#' . $nodeId . '").socialSharePrivacy(' . $options . ');' . _socialshareprivacy_external_link() . ' } }); })(jQuery);';
+  $inline_script = '(function ($) { jQuery(document).ready(function () { if(jQuery("#' . $nodeId . '").length > 0){ jQuery("#' . $nodeId . '").socialSharePrivacy(' . $options . ');' . _socialshareprivacy_external_link() . ' } }); })(jQuery);';
+
+  drupal_add_js($inline_script,
+    array(
+      'type' => 'inline',
+      'scope' => 'footer',
+    ));
+
+  return $inline_script;
 }
 
 /**
@@ -376,8 +399,8 @@ function _socialshareprivacy_get_javascript_options($url = '', $library_path = '
                   'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "'
               }
           },
-          'css_path': '" . base_path() . $path . "/socialshareprivacy/socialshareprivacy.css',
-          'cookie_expires' : '" . variable_get('socialshareprivacy_cookie_expires', '365') . "',
+          'css_path': ''," . // setting css_path to an empty string disables loading the css in socialshareprivacy.js and we can use drupal_add_css() instead
+"          'cookie_expires' : '" . variable_get('socialshareprivacy_cookie_expires', '365') . "',
           'info_link': '" . url(variable_get('socialshareprivacy_ext_link_target', 'http://www.heise.de/ct/artikel/2-Klicks-fuer-mehr-Datenschutz-1333879.html')) . "'";
   }
   else {
@@ -409,8 +432,8 @@ function _socialshareprivacy_get_javascript_options($url = '', $library_path = '
                   'referrer_track' : '" . _socialshareprivacy_get_referer_track() . "'
               }
           },
-          'css_path': '" . base_path() . $path . "/socialshareprivacy/socialshareprivacy.css',
-          'cookie_expires' : '" . (is_numeric(variable_get('socialshareprivacy_cookie_expires', '365')) ? variable_get('socialshareprivacy_cookie_expires', '365') : '365') . "',
+          'css_path': ''," . // setting css_path to an empty string disables loading the css in socialshareprivacy.js and we can use drupal_add_css() instead
+"          'cookie_expires' : '" . (is_numeric(variable_get('socialshareprivacy_cookie_expires', '365')) ? variable_get('socialshareprivacy_cookie_expires', '365') : '365') . "',
           'txt_help'       : '" . _socialshareprivacy_escape_javascript(t('If you enable any of these options then the corresponding social network will receive and store data about your visit on this site. For more information please click on the <em>i</em>')) . "',
           'settings_perma' : '" . _socialshareprivacy_escape_javascript(t('Agree to permanent activation and thus data transfer:')) . "',
           'info_link': '" . url(variable_get('socialshareprivacy_ext_link_target', 'http://www.heise.de/ct/artikel/2-Klicks-fuer-mehr-Datenschutz-1333879.html')) . "'";
